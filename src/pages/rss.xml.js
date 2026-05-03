@@ -9,8 +9,8 @@ export async function GET(context) {
   const slugOf = (id) => id.replace(/\/index$/, '').split('/').pop();
 
   return rss({
-    title: 'Carlos Vilhena',
-    description: 'Thoughts on entrepreneurship, leadership and engineering.',
+    title: 'Tiny Delights',
+    description: 'Welcome to my blog! My name is Carlos, and I am a builder.',
     site: context.site,
     items: sortedPosts.map((post) => ({
       title: post.data.title,

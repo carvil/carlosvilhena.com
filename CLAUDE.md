@@ -1,6 +1,12 @@
 # CLAUDE.md — carlosvilhena.com
 
-Personal blog of Carlos Vilhena. Migrated from WordPress (HostGator Hatchling, McLuhan theme) to a static Astro site on Cloudflare Pages.
+Personal blog of Carlos Vilhena, published as **"Tiny Delights"**. Migrated from WordPress (HostGator Hatchling, McLuhan theme) to a static Astro site on Cloudflare Pages.
+
+## Branding — two-layer
+
+- **Publication: "Tiny Delights"** — surfaces in: homepage hero h1, browser tab title, og:site_name, WebSite JSON-LD `name`, RSS feed title, `/llms.txt` header.
+- **Author: "Carlos Vilhena"** — surfaces in: navbar (top-left home link), footer copyright, Article JSON-LD `author`, Person JSON-LD `name`, byline.
+- Don't collapse them. They serve different surfaces and SEO/AI both publication and author identities to be discoverable separately.
 
 ## Stack
 

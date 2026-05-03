@@ -12,10 +12,15 @@ interface Props {
   modifiedDate?: Date;
 }
 
-const SITE_NAME = 'Carlos Vilhena';
-const SITE_TAGLINE = 'Thoughts on entrepreneurship, leadership and engineering.';
+// Two-layer naming:
+//   PUBLICATION_NAME — the blog's identity (homepage hero, browser tab, RSS, og:site_name).
+//   AUTHOR_NAME      — the human (navbar, footer, JSON-LD Person, Article author).
+// Don't collapse them — they serve different surfaces.
+const PUBLICATION_NAME = 'Tiny Delights';
+const AUTHOR_NAME = 'Carlos Vilhena';
+const SITE_TAGLINE = 'Welcome to my blog! My name is Carlos, and I am a builder.';
 const DEFAULT_DESCRIPTION =
-  'Personal essays by Carlos Vilhena on leadership, engineering, entrepreneurship and STEM education.';
+  'Personal essays by Carlos Vilhena on entrepreneurship, leadership, engineering and STEM education.';
 
 const {
   title,
@@ -32,7 +37,7 @@ const ogImageURL = image.startsWith('/') ? new URL(image, Astro.site) : image;
 const personLD = {
   '@context': 'https://schema.org',
   '@type': 'Person',
-  name: SITE_NAME,
+  name: AUTHOR_NAME,
   url: Astro.site?.toString(),
   sameAs: [
     'https://twitter.com/carvil',
@@ -45,10 +50,10 @@ const personLD = {
 const websiteLD = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: SITE_NAME,
+  name: PUBLICATION_NAME,
   url: Astro.site?.toString(),
   description: DEFAULT_DESCRIPTION,
-  author: { '@type': 'Person', name: SITE_NAME },
+  author: { '@type': 'Person', name: AUTHOR_NAME },
 };
 
 const articleLD = publishedDate
@@ -58,7 +63,8 @@ const articleLD = publishedDate
       headline: title,
       description,
       image: ogImageURL.toString(),
-      author: { '@type': 'Person', name: SITE_NAME, url: Astro.site?.toString() },
+      author: { '@type': 'Person', name: AUTHOR_NAME, url: Astro.site?.toString() },
+      publisher: { '@type': 'Organization', name: PUBLICATION_NAME },
       datePublished: publishedDate.toISOString(),
       dateModified: (modifiedDate ?? publishedDate).toISOString(),
       mainEntityOfPage: canonicalURL.toString(),
@@ -72,10 +78,10 @@ const articleLD = publishedDate
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{type === 'website' && Astro.url.pathname === '/' ? `${SITE_NAME} — ${SITE_TAGLINE}` : `${title} — ${SITE_NAME}`}</title>
+    <title>{type === 'website' && Astro.url.pathname === '/' ? `${PUBLICATION_NAME} — ${AUTHOR_NAME}` : `${title} — ${PUBLICATION_NAME}`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={PUBLICATION_NAME} href="/rss.xml" />
 
     <ClientRouter />
 
@@ -99,7 +105,7 @@ const articleLD = publishedDate
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageURL} />
-    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:site_name" content={PUBLICATION_NAME} />
     {publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
     {modifiedDate && <meta property="article:modified_time" content={modifiedDate.toISOString()} />}
 
@@ -125,7 +131,7 @@ const articleLD = publishedDate
     <div class="bg-white dark:bg-black transition-colors duration-300">
       <header class="mx-auto max-w-4xl py-8 px-4">
         <div class="flex items-center justify-between">
-          <a href="/" class="text-2xl font-semibold" transition:animate="fade">{SITE_NAME}</a>
+          <a href="/" class="text-2xl font-semibold" transition:animate="fade">{AUTHOR_NAME}</a>
 
           <div class="hidden md:flex items-center gap-6">
             <nav class="flex items-center gap-6">
@@ -170,7 +176,7 @@ const articleLD = publishedDate
 
       <footer class="max-w-4xl mx-auto py-8 px-4 border-t border-gray-200 dark:border-gray-800 mt-12">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="text-sm text-gray-500 dark:text-gray-500">© {new Date().getFullYear()} {SITE_NAME}</div>
+          <div class="text-sm text-gray-500 dark:text-gray-500">© {new Date().getFullYear()} {AUTHOR_NAME}</div>
           <nav class="flex items-center gap-4 text-sm">
             <a href="/now/" class="nav-link-footer">Now</a>
             <a href="/get-in-touch/" class="nav-link-footer">Get in touch</a>

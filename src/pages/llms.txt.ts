@@ -11,9 +11,9 @@ export const GET: APIRoute = async ({ site }) => {
   );
 
   const lines: string[] = [
-    '# Carlos Vilhena',
+    '# Tiny Delights',
     '',
-    '> Thoughts on entrepreneurship, leadership and engineering. Personal essays by Carlos Vilhena.',
+    '> Welcome to my blog! My name is Carlos, and I am a builder. Personal essays by Carlos Vilhena on entrepreneurship, leadership, engineering, and STEM education.',
     '',
     '## About',
     '',
