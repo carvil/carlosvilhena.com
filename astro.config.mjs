@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import recommends from 'astro-recommends';
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,5 +26,17 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap(),
+    recommends({
+      basePath: '/go',
+      target: 'cloudflare',
+      validate: 'strict',
+      defaults: {
+        rel: ['sponsored', 'nofollow', 'noopener'],
+        target: '_blank',
+      },
+    }),
+  ],
 });
