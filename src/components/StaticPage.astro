@@ -7,6 +7,8 @@ interface Props {
 }
 
 const { slug } = Astro.props;
+// Astro's glob loader treats <slug>/index.{md,mdx} the same as <slug>.{md,mdx}
+// — both produce the id <slug>. So a single getEntry call covers both layouts.
 const entry = await getEntry('pages', slug);
 if (!entry) {
   throw new Error(`[carlosvilhena.com] page content not found for slug "${slug}"`);
