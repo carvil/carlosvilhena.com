@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from '../components/PostList.astro';
+import CategoryCard from '../components/CategoryCard.astro';
 import { getCollection } from 'astro:content';
 import { CATEGORIES } from '../content.config.ts';
+
+const RECENT_LIMIT = 8;
 
 const all = await getCollection('posts', ({ data }) => !data.draft);
 const sorted = all.sort(
@@ -11,18 +14,16 @@ const sorted = all.sort(
 
 const slugOf = (id: string) => id.replace(/\/index$/, '').split('/').pop()!;
 
-const byCategory = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map(
+const recent = sorted.slice(0, RECENT_LIMIT).map((p) => ({
+  id: p.id,
+  url: `/${slugOf(p.id)}/`,
+  frontmatter: p.data,
+}));
+
+const categoryCounts = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map(
   (cat) => ({
     slug: cat,
-    label: CATEGORIES[cat].label,
-    intro: CATEGORIES[cat].intro,
-    posts: sorted
-      .filter((p) => p.data.category === cat)
-      .map((p) => ({
-        id: p.id,
-        url: `/${slugOf(p.id)}/`,
-        frontmatter: p.data,
-      })),
+    count: sorted.filter((p) => p.data.category === cat).length,
   }),
 );
 ---
@@ -30,22 +31,30 @@ const byCategory = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map(
 <BaseLayout title="Tiny Delights">
   <div class="max-w-3xl mx-auto">
     <section class="text-center py-[8vh]" transition:animate="fade">
-      <h1 class="text-6xl md:text-7xl mb-6 font-bold">Tiny Delights</h1>
+      <h1 class="text-6xl md:text-7xl mb-6 font-bold">
+        Tiny Delights<span class="accent">.</span>
+      </h1>
       <p class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
         Welcome to my blog! My name is Carlos, and I am a builder.
       </p>
     </section>
 
-    {byCategory.map((cat) => (
-      <section class="mt-12" transition:animate="fade">
-        <header class="mb-2">
-          <h2 class="text-2xl font-semibold">
-            <a href={`/${cat.slug}/`} class="hover:underline">{cat.label}</a>
-          </h2>
-          <p class="text-gray-500 dark:text-gray-400 mt-1">{cat.intro}</p>
-        </header>
-        <PostList posts={cat.posts} showDescription={false} />
-      </section>
-    ))}
+    <section class="mt-8" transition:animate="fade">
+      <h2 class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 font-medium mb-2">
+        Recent
+      </h2>
+      <PostList posts={recent} showDescription={false} showCategory />
+    </section>
+
+    <section class="mt-16" transition:animate="fade">
+      <h2 class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 font-medium mb-6">
+        Browse by topic
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {categoryCounts.map((c) => (
+          <CategoryCard category={c.slug} postCount={c.count} />
+        ))}
+      </div>
+    </section>
   </div>
 </BaseLayout>

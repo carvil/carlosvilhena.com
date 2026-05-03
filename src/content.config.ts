@@ -31,18 +31,24 @@ const pagesCollection = defineCollection({
   }),
 });
 
-export const CATEGORIES: Record<(typeof CATEGORY_VALUES)[number], { label: string; intro: string }> = {
+export const CATEGORIES: Record<
+  (typeof CATEGORY_VALUES)[number],
+  { label: string; intro: string; icon: string }
+> = {
   'leadership-breadcrumbs': {
     label: 'Leadership Breadcrumbs',
     intro: 'Notes on leading teams, building cultures, and the long road of becoming a better operator.',
+    icon: 'lucide:footprints',
   },
   'stem-education': {
     label: 'STEM Education',
     intro: 'Thoughts on raising curious learners — programming for kids, creative learning, hands-on tools.',
+    icon: 'lucide:microscope',
   },
   'side-quests': {
     label: 'Side Quests',
     intro: 'Personal projects, experiments, and small obsessions that don’t fit anywhere else.',
+    icon: 'lucide:compass',
   },
 };
 

@@ -1,5 +1,8 @@
 ---
 import PostCard from './PostCard.astro';
+import { CATEGORIES } from '../content.config.ts';
+
+type CategorySlug = keyof typeof CATEGORIES;
 
 interface PostItem {
   id: string;
@@ -7,6 +10,7 @@ interface PostItem {
   frontmatter: {
     title: string;
     description: string;
+    category?: CategorySlug;
     tags?: string[];
   };
 }
@@ -15,10 +19,17 @@ interface Props {
   posts: PostItem[];
   showDescription?: boolean;
   showTags?: boolean;
+  showCategory?: boolean;
   title?: string;
 }
 
-const { posts, showDescription = true, showTags = false, title } = Astro.props;
+const {
+  posts,
+  showDescription = true,
+  showTags = false,
+  showCategory = false,
+  title,
+} = Astro.props;
 ---
 
 <section aria-labelledby={title ? 'post-list-title' : undefined}>
@@ -29,7 +40,12 @@ const { posts, showDescription = true, showTags = false, title } = Astro.props;
       <p class="py-8 text-gray-500 text-center">No posts yet.</p>
     ) : (
       posts.map((post) => (
-        <PostCard post={post} showDescription={showDescription} showTags={showTags} />
+        <PostCard
+          post={post}
+          showDescription={showDescription}
+          showTags={showTags}
+          showCategory={showCategory}
+        />
       ))
     )}
   </div>
