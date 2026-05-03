@@ -17,8 +17,12 @@ export default defineConfig({
     service: {
       entrypoint: 'astro/assets/services/sharp',
       config: {
+        // Higher quality (was 80) — graphics with fine text or line work
+        // (maps, word clouds, charts) blur noticeably below ~90 in webp.
+        // The size hit on photographs at 92 is small (~10-15%); the gain
+        // on graphics is substantial.
         format: 'webp',
-        quality: 80,
+        quality: 92,
         sizes: [640, 960, 1280, 1600, 2000],
         resizeOptions: { fit: 'cover', position: 'center' },
       },

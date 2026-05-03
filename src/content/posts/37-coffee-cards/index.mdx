@@ -1,15 +1,29 @@
 ---
 title: "37 Coffee Cards"
-description: "37 coffee cards from a subscription, turned into wall art \u2014 regional maps, a tasting-notes word cloud, and an espresso-cup micrography piece"
+description: "37 coffee cards from a subscription, turned into wall art — regional maps, a tasting-notes word cloud, and an espresso-cup micrography piece"
 category: side-quests
 publishedAt: 2026-05-02T11:04:45
 updatedAt: 2026-05-02T11:04:47
 ---
+import { Image } from 'astro:assets';
+import coffeeCards from './coffee-cards.jpg';
+import mapEastAfrica from './map_east_africa_bold.png';
+import mapCentralAmerica from './map_central_america_bold.png';
+import mapSouthAmerica from './map_south_america_bold.png';
+import wordCloud from './wordcloud_v1.png';
+import micrography from './micrography_v1.png';
+
 I subscribe to a coffee roastery — [Senzu](https://www.senzucoffee.com/), out of Porto. Every month, 4 bag arrives in the post, and tucked inside is a card: origin, farm, producer, variety, tasting notes, altitude, process, and a short blurb about why they picked this lot.
 
-![37 Coffee Cards](./coffee-cards.jpg)
-
-Coffee cards from Senzu Coffee Roasters
+<figure class="my-10 mx-auto max-w-2xl">
+  <Image
+    src={coffeeCards}
+    alt="A stack of monthly coffee cards from Senzu Coffee Roasters, each listing origin, farm, variety, and tasting notes"
+    widths={[480, 768, 1280, 1570]}
+    sizes="(min-width: 768px) 672px, 100vw"
+  />
+  <figcaption>Coffee cards from Senzu Coffee Roasters</figcaption>
+</figure>
 
 I love the design and the notes – it helps me better understand flavour profiles and have better awareness of coffee flavours. For a while I put the cards in a drawer, without any purpose. Then one morning I opened the drawer and counted them. Thirty-seven.
 
@@ -27,17 +41,35 @@ Five pieces came out of it. I didn’t really like 2, so I discarded those. Here
 
 A triptych — East Africa, Central America, South America. One colour per region, pulled from the cards themselves. Country outlines, a pin per finca, fine-print callouts in the margin with the producer’s name and altitude.
 
-![37 Coffee Cards](./map_east_africa_bold.png)
-
-East African Highlands
-
-![37 Coffee Cards](./map_central_america_bold.png)
-
-Central American Pacific
-
-![37 Coffee Cards](./map_south_america_bold.png)
-
-South America
+<div class="not-prose grid grid-cols-1 sm:grid-cols-3 gap-4 my-10">
+  <figure class="m-0">
+    <Image
+      src={mapEastAfrica}
+      alt="Map of the East African Highlands with one pin per coffee origin and producer callouts in the margins"
+      widths={[300, 600, 900, 1200]}
+      sizes="(min-width: 640px) 220px, 100vw"
+    />
+    <figcaption class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">East African Highlands</figcaption>
+  </figure>
+  <figure class="m-0">
+    <Image
+      src={mapCentralAmerica}
+      alt="Map of the Central American Pacific coast with one pin per coffee origin and producer callouts in the margins"
+      widths={[300, 600, 900, 1200]}
+      sizes="(min-width: 640px) 220px, 100vw"
+    />
+    <figcaption class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">Central American Pacific</figcaption>
+  </figure>
+  <figure class="m-0">
+    <Image
+      src={mapSouthAmerica}
+      alt="Map of South America with one pin per coffee origin and producer callouts in the margins"
+      widths={[300, 600, 900, 1200]}
+      sizes="(min-width: 640px) 220px, 100vw"
+    />
+    <figcaption class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">South America</figcaption>
+  </figure>
+</div>
 
 It’s the simplest piece, and probably my favourite. Every pin is a coffee I’ve actually drunk from Senzu. The map stops being abstract, and has a personal touch.
 
@@ -47,7 +79,14 @@ While it didn’t resonate with my wife, and might not end up on the wall next t
 
 This is probably a bit 2010’ish, but I went for it anyway. Every tasting note from every card, packed into a coffee-bean silhouette and sized by how often it appears. Chocolate dominates, as expected (if you want to learn more about why cholocate notes are common in Arabic beans, [check out this ICT blog post](https://www.ictcoffee.com/news/why-some-coffee-has-chocolate-notes-the-science-behind-coffees-beloved-flavor-profile/)). Then citrus, then stone fruit. A faint backdrop of countries, varieties and processes sits behind the notes, at a third of the scale.
 
-![37 Coffee Cards](./wordcloud_v1.png)
+<figure class="my-10 mx-auto max-w-md">
+  <Image
+    src={wordCloud}
+    alt="Tasting-notes word cloud shaped like a coffee bean, with words sized by how often they appear across the 37 cards"
+    widths={[448, 900, 1344]}
+    sizes="(min-width: 768px) 448px, 100vw"
+  />
+</figure>
 
 I learned more from building this than I expected. Six near-duplicates that I’d been reading as distinct flavours (wine and winey, cacao and cocoa) turned out to be the same note written two ways. I then had to pad it with other coffee-related words from the cards to make it into a reasonable shape. I think the coffee bean silhouette does show up nicely, but I’m not sure this one will make it to the wall.
 
@@ -55,7 +94,14 @@ I learned more from building this than I expected. Six near-duplicates that I’
 
 I then tried to use an existing coffee-related image, and add a touch related to the cards I got. I ended up with a top-down view of an espresso cup on a saucer. The shadow, the cup interior, and the crema disc are all filled, line by line, with the names and origins of the 37 coffees.
 
-![37 Coffee Cards](./micrography_v1.png)
+<figure class="my-10 mx-auto max-w-md">
+  <Image
+    src={micrography}
+    alt="Top-down view of an espresso cup on a saucer, with the shadow, cup interior, and crema disc filled with the names and origins of 37 coffees in fine text"
+    widths={[448, 900, 1344]}
+    sizes="(min-width: 768px) 448px, 100vw"
+  />
+</figure>
 
 You only see the shapes from across the room. Up close, it’s just text.
 

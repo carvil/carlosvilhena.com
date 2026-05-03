@@ -402,6 +402,15 @@
     @apply text-sm text-center text-gray-600 dark:text-gray-400 mt-2;
   }
 
+  /* Tailwind Typography (prose) hard-codes margin-left/right: 0 on figure,
+     which kills mx-auto centering inside .prose. Restore auto margins so
+     figures with explicit max-w-* center horizontally; figures without a
+     max-width still fill the container (auto on a full-width block → 0). */
+  .prose figure {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   img {
     @apply max-w-full h-auto rounded-md;
   }
