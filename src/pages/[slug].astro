@@ -1,0 +1,35 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const sorted = posts.sort(
+    (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+  );
+
+  // Each entry id is "<slug>/index" (when the post is a folder) or "<slug>"
+  // (when it's a single file). Normalise to bare <slug>.
+  const slugOf = (id: string) => id.replace(/\/index$/, '').split('/').pop()!;
+
+  return sorted.map((entry, index) => {
+    const prev = sorted[index - 1];
+    const next = sorted[index + 1];
+    return {
+      params: { slug: slugOf(entry.id) },
+      props: {
+        entry,
+        prevPost: prev ? { url: `/${slugOf(prev.id)}/`, title: prev.data.title } : null,
+        nextPost: next ? { url: `/${slugOf(next.id)}/`, title: next.data.title } : null,
+      },
+    };
+  });
+}
+
+const { entry, prevPost, nextPost } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<PostLayout frontmatter={entry.data} prevPost={prevPost} nextPost={nextPost}>
+  <Content />
+</PostLayout>

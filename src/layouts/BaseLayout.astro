@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import DarkModeToggle from '../components/ui/DarkModeToggle.astro';
-import Analytics from '@vercel/analytics/astro';
 
 interface Props {
   title: string;
@@ -11,55 +10,60 @@ interface Props {
   type?: 'website' | 'article';
   publishedDate?: Date;
   modifiedDate?: Date;
-  author?: string;
 }
 
-const { 
-  title, 
-  description = "A minimalist blog template focusing on clean typography and distraction-free reading experience.", 
-  image = "/og-image.png",
-  type = "website",
+const SITE_NAME = 'Carlos Vilhena';
+const SITE_TAGLINE = 'Thoughts on entrepreneurship, leadership and engineering.';
+const DEFAULT_DESCRIPTION =
+  'Personal essays by Carlos Vilhena on leadership, engineering, entrepreneurship and STEM education.';
+
+const {
+  title,
+  description = DEFAULT_DESCRIPTION,
+  image = '/og-default.jpg',
+  type = 'website',
   publishedDate,
   modifiedDate,
-  author = "Brook Team"
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = image.startsWith('/') ? new URL(image, Astro.site) : image;
-const siteName = "Brook Blog";
 
-// Strukturierte Daten (JSON-LD) für bessere SEO
-const jsonLDWebsite = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": siteName,
-  "url": Astro.site?.toString(),
-  "description": description,
+const personLD = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE_NAME,
+  url: Astro.site?.toString(),
+  sameAs: [
+    'https://twitter.com/carvil',
+    'https://www.linkedin.com/in/carlosvilhena',
+    'https://github.com/carvil',
+    'https://www.instagram.com/carvil/',
+  ],
 };
 
-const jsonLDArticle = publishedDate ? {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": title,
-  "image": ogImageURL.toString(),
-  "author": {
-    "@type": "Person",
-    "name": author
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": siteName,
-    "logo": {
-      "@type": "ImageObject",
-      "url": new URL("/favicon.svg", Astro.site).toString()
-    }
-  },
-  "datePublished": publishedDate.toISOString(),
-  "dateModified": modifiedDate ? modifiedDate.toISOString() : publishedDate.toISOString(),
-  "mainEntityOfPage": canonicalURL.toString(),
-} : null;
+const websiteLD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: Astro.site?.toString(),
+  description: DEFAULT_DESCRIPTION,
+  author: { '@type': 'Person', name: SITE_NAME },
+};
 
-const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsite;
+const articleLD = publishedDate
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description,
+      image: ogImageURL.toString(),
+      author: { '@type': 'Person', name: SITE_NAME, url: Astro.site?.toString() },
+      datePublished: publishedDate.toISOString(),
+      dateModified: (modifiedDate ?? publishedDate).toISOString(),
+      mainEntityOfPage: canonicalURL.toString(),
+    }
+  : null;
 ---
 
 <!DOCTYPE html>
@@ -68,51 +72,46 @@ const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsi
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} | Brook</title>
+    <title>{type === 'website' && Astro.url.pathname === '/' ? `${SITE_NAME} — ${SITE_TAGLINE}` : `${title} — ${SITE_NAME}`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="/rss.xml" />
 
-    <!-- Aktivieren der View Transitions -->
     <ClientRouter />
 
-    <!-- Dark mode initialization script according to official Tailwind documentation -->
     <script is:inline>
-      // Function to apply theme
       function applyTheme() {
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark')
+        if (
+          localStorage.theme === 'dark' ||
+          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.documentElement.classList.add('dark');
         } else {
-          document.documentElement.classList.remove('dark')
+          document.documentElement.classList.remove('dark');
         }
       }
-
-      // Apply on initial load
       applyTheme();
-
-      // Re-apply after view transitions
       document.addEventListener('astro:after-swap', applyTheme);
     </script>
-    
-    <!-- Open Graph / Facebook -->
+
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageURL} />
-    <meta property="og:site_name" content={siteName} />
+    <meta property="og:site_name" content={SITE_NAME} />
     {publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
     {modifiedDate && <meta property="article:modified_time" content={modifiedDate.toISOString()} />}
 
-    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={ogImageURL} />
-    
-    <!-- Strukturierte Daten für SEO -->
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />
-    
+
+    <script type="application/ld+json" set:html={JSON.stringify(articleLD ?? websiteLD)} />
+    <script type="application/ld+json" set:html={JSON.stringify(personLD)} />
+
     <style is:inline>
       body {
         font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -124,22 +123,20 @@ const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsi
   </head>
   <body class="text-gray-900 bg-white dark:text-gray-300 dark:bg-black transition-colors duration-300">
     <div class="bg-white dark:bg-black transition-colors duration-300">
-      <header class="mx-auto max-w-4xl py-8">
+      <header class="mx-auto max-w-4xl py-8 px-4">
         <div class="flex items-center justify-between">
-          <a href="/" class="text-2xl font-semibold" transition:animate="fade">Brook2</a>
+          <a href="/" class="text-2xl font-semibold" transition:animate="fade">{SITE_NAME}</a>
 
-          <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center gap-6">
             <nav class="flex items-center gap-6">
-              <a href="/" class="nav-link">Home</a>
-              <a href="/journal" class="nav-link">Journal</a>
-              <a href="/about" class="nav-link">About</a>
-              <a href="/styleguide" class="nav-link">Styleguide</a>
+              <a href="/leadership-breadcrumbs/" class="nav-link">Leadership Breadcrumbs</a>
+              <a href="/stem-education/" class="nav-link">STEM Education</a>
+              <a href="/side-quests/" class="nav-link">Side Quests</a>
+              <a href="/about-me/" class="nav-link">About</a>
             </nav>
             <DarkModeToggle />
           </div>
 
-          <!-- Mobile Navigation Controls -->
           <div class="md:hidden flex items-center gap-2">
             <DarkModeToggle />
             <button
@@ -149,71 +146,57 @@ const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsi
               aria-expanded="false"
               aria-label="Toggle menu"
             >
-            <svg id="menu-icon" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-            <svg id="close-icon" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+              <svg id="menu-icon" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+              <svg id="close-icon" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>
 
-        <!-- Mobile Navigation -->
         <nav id="mobile-menu" class="hidden md:hidden mt-6 pt-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
-          <a href="/" class="block px-3 py-2 text-sm text-gray-900 dark:text-gray-300 hover:underline">Home</a>
-          <a href="/journal" class="block px-3 py-2 text-sm text-gray-900 dark:text-gray-300 hover:underline">Journal</a>
-          <a href="/about" class="block px-3 py-2 text-sm text-gray-900 dark:text-gray-300 hover:underline">About</a>
-          <a href="/styleguide" class="block px-3 py-2 text-sm text-gray-900 dark:text-gray-300 hover:underline">Styleguide</a>
+          <a href="/leadership-breadcrumbs/" class="block px-3 py-2 text-sm hover:underline">Leadership Breadcrumbs</a>
+          <a href="/stem-education/" class="block px-3 py-2 text-sm hover:underline">STEM Education</a>
+          <a href="/side-quests/" class="block px-3 py-2 text-sm hover:underline">Side Quests</a>
+          <a href="/about-me/" class="block px-3 py-2 text-sm hover:underline">About</a>
         </nav>
       </header>
-      
-      <main class="py-10" transition:animate="fade">
+
+      <main class="py-10 px-4" transition:animate="fade">
         <slot />
       </main>
-      
-      <footer class="max-w-4xl mx-auto py-8 border-t border-gray-200 dark:border-gray-800 mt-12">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-sm text-gray-500 dark:text-gray-500">
-              Made by <a href="https://templatedeck.com" target="_blank" rel="noopener noreferrer" class="hover:text-gray-900 dark:hover:text-gray-100">templatedeck.com</a>
-            </div>
-            <nav class="flex items-center gap-4">
-              <a href="/" class="nav-link-footer">Home</a>
-              <a href="/journal" class="nav-link-footer">Journal</a>
-              <a href="/about" class="nav-link-footer">About</a>
-              <a href="/styleguide" class="nav-link-footer">Styleguide</a>
-            </nav>
-          </div>
+
+      <footer class="max-w-4xl mx-auto py-8 px-4 border-t border-gray-200 dark:border-gray-800 mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="text-sm text-gray-500 dark:text-gray-500">© {new Date().getFullYear()} {SITE_NAME}</div>
+          <nav class="flex items-center gap-4 text-sm">
+            <a href="/now/" class="nav-link-footer">Now</a>
+            <a href="/get-in-touch/" class="nav-link-footer">Get in touch</a>
+            <a href="/rss.xml" class="nav-link-footer">RSS</a>
+            <a href="https://github.com/carvil" class="nav-link-footer" rel="me">GitHub</a>
+          </nav>
+        </div>
       </footer>
     </div>
 
     <script>
-      // Mobile menu toggle functionality
       function initMobileMenu() {
         const menuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         const menuIcon = document.getElementById('menu-icon');
         const closeIcon = document.getElementById('close-icon');
-
         if (!menuButton || !mobileMenu || !menuIcon || !closeIcon) return;
-
         menuButton.addEventListener('click', () => {
           const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-
-          // Toggle menu visibility
           mobileMenu.classList.toggle('hidden');
-
-          // Toggle icons
           menuIcon.classList.toggle('hidden');
           closeIcon.classList.toggle('hidden');
-
-          // Update aria-expanded
           menuButton.setAttribute('aria-expanded', String(!isExpanded));
         });
-
-        // Close menu when clicking on a link
         const mobileLinks = mobileMenu.querySelectorAll('a');
-        mobileLinks.forEach(link => {
+        mobileLinks.forEach((link) => {
           link.addEventListener('click', () => {
             mobileMenu.classList.add('hidden');
             menuIcon.classList.remove('hidden');
@@ -223,19 +206,12 @@ const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsi
         });
       }
 
-      // Dark mode toggle functionality
       function initThemeToggle() {
         const buttons = document.querySelectorAll('.theme-toggle');
-
-        buttons.forEach(button => {
-          // Remove existing listener if any
+        buttons.forEach((button) => {
           const oldHandler = button.themeToggleHandler;
-          if (oldHandler) {
-            button.removeEventListener('click', oldHandler);
-          }
-
-          // Create handler function
-          const handler = function() {
+          if (oldHandler) button.removeEventListener('click', oldHandler);
+          const handler = function () {
             if (document.documentElement.classList.contains('dark')) {
               localStorage.theme = 'light';
               document.documentElement.classList.remove('dark');
@@ -244,22 +220,17 @@ const jsonLD = type === 'article' && jsonLDArticle ? jsonLDArticle : jsonLDWebsi
               document.documentElement.classList.add('dark');
             }
           };
-
           button.themeToggleHandler = handler;
           button.addEventListener('click', handler);
         });
       }
 
-      // Initialize on page load
       initMobileMenu();
       initThemeToggle();
-
-      // Re-initialize after view transitions
       document.addEventListener('astro:after-swap', () => {
         initMobileMenu();
         initThemeToggle();
       });
     </script>
-    <Analytics />
   </body>
 </html>

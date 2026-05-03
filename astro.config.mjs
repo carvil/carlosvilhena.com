@@ -5,33 +5,25 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static', // Explicitly specify static output (which is also the default)
-  site: 'https://brook2-astro-blog.vercel.app',
-  // Enable built-in image optimization with specific settings
+  output: 'static',
+  site: 'https://carlosvilhena.com',
+  trailingSlash: 'always',
+  build: {
+    format: 'directory',
+  },
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',
       config: {
-        // Use webp as preferred format for better compression and quality
         format: 'webp',
-        // Higher quality setting (0-100)
         quality: 80,
-        // Default sizes for responsive images
         sizes: [640, 960, 1280, 1600, 2000],
-        // Process images into multiple sizes for responsiveness
-        resizeOptions: {
-          fit: 'cover',
-          position: 'center'
-        }
-      }
-    }
+        resizeOptions: { fit: 'cover', position: 'center' },
+      },
+    },
   },
   vite: {
-    // Using Tailwind CSS v4 with @tailwindcss/vite
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
-  integrations: [
-    mdx(),
-    sitemap()
-  ]
+  integrations: [mdx(), sitemap()],
 });

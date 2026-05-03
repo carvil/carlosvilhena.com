@@ -2,42 +2,48 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from '../components/PostList.astro';
 import { getCollection } from 'astro:content';
+import { CATEGORIES } from '../content.config.ts';
 
-// Get all blog posts and sort them by date
-const allPosts = await getCollection('posts');
-const sortedPosts = allPosts.sort((a, b) => {
-  return new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf();
-});
+const all = await getCollection('posts', ({ data }) => !data.draft);
+const sorted = all.sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
 
-// Show up to 5 posts on the frontpage
-const posts = sortedPosts.slice(0, 5).map(post => ({
-  ...post,
-  url: `/posts/${post.id}`,
-  frontmatter: post.data
-}));
+const byCategory = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map(
+  (cat) => ({
+    slug: cat,
+    label: CATEGORIES[cat].label,
+    intro: CATEGORIES[cat].intro,
+    posts: sorted
+      .filter((p) => p.data.category === cat)
+      .map((p) => ({
+        id: p.id,
+        url: `/${p.id.replace(/\/index$/, '').split('/').pop()}/`,
+        frontmatter: p.data,
+      })),
+  }),
+);
 ---
 
-<BaseLayout title="Welcome">
-  <div class="max-w-4xl mx-auto">
-    <section class="text-center py-[8vh]" transition:animate="fade">
-      <h1 class="text-7xl mb-8 font-bold">Welcome to Brook 2.0</h1>
-      <p class="text-2xl text-muted-foreground max-w-3xl mx-auto mb-14">
-        A minimalist blog template for developers and writers focusing on clean typography and distraction-free
-        reading experience.
+<BaseLayout title="Carlos Vilhena">
+  <div class="max-w-3xl mx-auto">
+    <section class="py-[8vh]" transition:animate="fade">
+      <h1 class="text-5xl md:text-6xl mb-6 font-semibold">Carlos Vilhena</h1>
+      <p class="text-xl md:text-2xl text-gray-500 dark:text-gray-400">
+        Thoughts on entrepreneurship, leadership and engineering.
       </p>
-      <a href="https://github.com/holger1411/astro-brook" target="_blank" rel="noopener noreferrer" class="btn-primary btn-lg tracking-wide no-underline hover:no-underline transform transition-all duration-300 hover:scale-105 hover:shadow-[0_3.5rem_5rem_rgba(21,21,21,0.3)] shadow-[0_3rem_4rem_rgba(21,21,21,0.25)] dark:bg-white dark:text-black dark:hover:bg-gray-100">
-        View on GitHub
-      </a>
     </section>
 
-    <section class="mx-auto" transition:animate="fade">
-      <PostList posts={posts} showImages={false} showExcerpt={false} showSeparators={true} showTags={false}/>
-
-      <div class="text-center mt-24">
-        <a href="/journal" class="text-lg font-medium text-black dark:text-white py-2 px-4 rounded-md inline-block focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:underline">
-          View All Posts <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </section>
+    {byCategory.map((cat) => (
+      <section class="mt-12" transition:animate="fade">
+        <header class="mb-2">
+          <h2 class="text-2xl font-semibold">
+            <a href={`/${cat.slug}/`} class="hover:underline">{cat.label}</a>
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">{cat.intro}</p>
+        </header>
+        <PostList posts={cat.posts} showDescription={false} />
+      </section>
+    ))}
   </div>
 </BaseLayout>

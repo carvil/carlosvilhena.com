@@ -2,22 +2,22 @@ import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 
 export async function GET(context) {
-  const posts = await getCollection('posts');
-  
-  // Sort posts by date (most recent first)
-  const sortedPosts = posts.sort((a, b) => 
-    new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const sortedPosts = posts.sort(
+    (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
   );
-  
+  const slugOf = (id) => id.replace(/\/index$/, '').split('/').pop();
+
   return rss({
-    title: 'Brook Blog',
-    description: 'A minimalist blog template focusing on clean typography and distraction-free reading experience',
+    title: 'Carlos Vilhena',
+    description: 'Thoughts on entrepreneurship, leadership and engineering.',
     site: context.site,
     items: sortedPosts.map((post) => ({
       title: post.data.title,
-      pubDate: post.data.date,
-      description: post.data.excerpt,
-      link: `/posts/${post.id}/`,
+      pubDate: post.data.publishedAt,
+      description: post.data.description,
+      link: `/${slugOf(post.id)}/`,
+      categories: [post.data.category, ...post.data.tags],
     })),
     customData: `<language>en-us</language>`,
   });
