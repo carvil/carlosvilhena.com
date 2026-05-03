@@ -18,7 +18,7 @@
     "@iconify-json/lucide": "^1.2.105",
     "astro": "^6.1.7",
     "astro-icon": "^1.1.5",
-    "astro-recommends": "link:../astro-recommends",
+    "astro-recommends": "^0.1.1",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
