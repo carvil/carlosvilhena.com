@@ -87,17 +87,27 @@ const articleLD = publishedDate
     <ClientRouter />
 
     <script is:inline>
+      // Theme system — three-state: 'light' | 'dark' | 'system'.
+      // 'system' (the default for first-time visitors) follows the OS pref
+      // and live-updates when the OS pref changes.
+      function getThemeMode() {
+        const m = localStorage.theme;
+        return m === 'light' || m === 'dark' || m === 'system' ? m : 'system';
+      }
       function applyTheme() {
-        if (
-          localStorage.theme === 'dark' ||
-          (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        const mode = getThemeMode();
+        document.documentElement.dataset.themeMode = mode;
+        const isDark =
+          mode === 'dark' ||
+          (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
       }
       applyTheme();
+      window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', () => {
+          if (getThemeMode() === 'system') applyTheme();
+        });
       document.addEventListener('astro:after-swap', applyTheme);
     </script>
 
@@ -342,24 +352,36 @@ const articleLD = publishedDate
         });
       }
 
-      // Dark mode toggle
+      // Theme toggle — cycles light → dark → system → light.
+      // 'system' is stored as no localStorage entry so it auto-tracks
+      // future OS pref changes.
       function initThemeToggle() {
+        const NEXT = { light: 'dark', dark: 'system', system: 'light' };
+        const LABEL = { light: 'Light', dark: 'Dark', system: 'System' };
         const buttons = document.querySelectorAll('.theme-toggle');
+        const updateLabels = () => {
+          const mode = getThemeMode();
+          const next = NEXT[mode];
+          const text = `Theme: ${LABEL[mode]} (click for ${LABEL[next]})`;
+          buttons.forEach((b) => {
+            b.setAttribute('aria-label', text);
+            b.setAttribute('title', text);
+          });
+        };
         buttons.forEach((button) => {
           const oldHandler = button.themeToggleHandler;
           if (oldHandler) button.removeEventListener('click', oldHandler);
           const handler = function () {
-            if (document.documentElement.classList.contains('dark')) {
-              localStorage.theme = 'light';
-              document.documentElement.classList.remove('dark');
-            } else {
-              localStorage.theme = 'dark';
-              document.documentElement.classList.add('dark');
-            }
+            const next = NEXT[getThemeMode()];
+            if (next === 'system') delete localStorage.theme;
+            else localStorage.theme = next;
+            applyTheme();
+            updateLabels();
           };
           button.themeToggleHandler = handler;
           button.addEventListener('click', handler);
         });
+        updateLabels();
       }
 
       // Search — lazy-loads Pagefind UI on first open. The Pagefind index
