@@ -132,7 +132,14 @@ const articleLD = publishedDate
     <div class="bg-white dark:bg-black transition-colors duration-300">
       <header class="mx-auto max-w-4xl py-8 px-4">
         <div class="flex items-center justify-between">
-          <a href="/" class="text-2xl font-semibold" transition:animate="fade">{AUTHOR_NAME}</a>
+          <a href="/" class="text-2xl font-semibold inline-flex items-center gap-2.5" transition:animate="fade">
+            <span
+              class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+              style="background-color: var(--color-accent)"
+              aria-hidden="true"
+            ></span>
+            <span>{AUTHOR_NAME}</span>
+          </a>
 
           <!-- Desktop nav -->
           <div class="hidden md:flex items-center gap-5">
