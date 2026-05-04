@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+
+// Astro runs getStaticPaths in a sandboxed module context — top-level
+// frontmatter constants aren't visible inside it. Inline the page size.
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const sorted = posts.sort(
+    (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+  );
+  return paginate(sorted, { pageSize: 10 });
+};
+
+const { page } = Astro.props;
+const slugOf = (id: string) => id.replace(/\/index$/, '').split('/').pop()!;
+
+const formattedPosts = page.data.map((post) => ({
+  id: post.id,
+  url: `/${slugOf(post.id)}/`,
+  frontmatter: post.data,
+}));
+
+const showingFrom = (page.currentPage - 1) * page.size + 1;
+const showingTo = Math.min(page.currentPage * page.size, page.total);
+---
+
+<BaseLayout
+  title={page.currentPage === 1 ? 'All posts' : `All posts — page ${page.currentPage}`}
+  description="The full archive of essays on Tiny Delights — leadership, STEM education, and side quests."
+>
+  <div class="max-w-3xl mx-auto">
+    <header class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-semibold mb-2">All posts</h1>
+      <p class="text-gray-500 dark:text-gray-400">
+        Showing {showingFrom}–{showingTo} of {page.total}.
+      </p>
+    </header>
+
+    <PostList posts={formattedPosts} showDescription={false} showCategory />
+
+    {(page.url.prev || page.url.next) && (
+      <nav class="mt-10 flex items-center justify-between text-sm" aria-label="Pagination">
+        <div>
+          {page.url.prev ? (
+            <a href={page.url.prev} class="hover:underline" rel="prev">
+              <span aria-hidden="true">←</span> Newer
+            </a>
+          ) : (
+            <span class="text-gray-400 dark:text-gray-600">
+              <span aria-hidden="true">←</span> Newer
+            </span>
+          )}
+        </div>
+        <div class="text-gray-500 dark:text-gray-400">
+          Page {page.currentPage} of {page.lastPage}
+        </div>
+        <div>
+          {page.url.next ? (
+            <a href={page.url.next} class="hover:underline" rel="next">
+              Older <span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <span class="text-gray-400 dark:text-gray-600">
+              Older <span aria-hidden="true">→</span>
+            </span>
+          )}
+        </div>
+      </nav>
+    )}
+  </div>
+</BaseLayout>

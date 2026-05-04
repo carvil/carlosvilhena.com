@@ -2,28 +2,41 @@
 import { Icon } from 'astro-icon/components';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostList from './PostList.astro';
-import { getCollection } from 'astro:content';
 import { CATEGORIES } from '../content.config.ts';
 
-interface Props {
-  category: keyof typeof CATEGORIES;
+type CategorySlug = keyof typeof CATEGORIES;
+
+interface PostItem {
+  id: string;
+  url: string;
+  frontmatter: {
+    title: string;
+    description: string;
+    category?: CategorySlug;
+    tags?: string[];
+  };
 }
 
-const { category } = Astro.props;
+interface PaginationInfo {
+  currentPage: number;
+  lastPage: number;
+  size: number;
+  total: number;
+  prevUrl: string | undefined;
+  nextUrl: string | undefined;
+}
+
+interface Props {
+  category: CategorySlug;
+  posts: PostItem[];
+  pagination: PaginationInfo;
+}
+
+const { category, posts, pagination } = Astro.props;
 const meta = CATEGORIES[category];
 
-const all = await getCollection('posts', ({ data }) => !data.draft && data.category === category);
-const sorted = all.sort(
-  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
-);
-
-const slugOf = (id: string) => id.replace(/\/index$/, '').split('/').pop()!;
-
-const posts = sorted.map((p) => ({
-  id: p.id,
-  url: `/${slugOf(p.id)}/`,
-  frontmatter: p.data,
-}));
+const showingFrom = (pagination.currentPage - 1) * pagination.size + 1;
+const showingTo = Math.min(pagination.currentPage * pagination.size, pagination.total);
 ---
 
 <BaseLayout title={meta.label} description={meta.intro}>
@@ -32,8 +45,43 @@ const posts = sorted.map((p) => ({
       <Icon name={meta.icon} class="w-12 h-12 accent" aria-hidden="true" />
       <h1 class="text-4xl md:text-5xl font-semibold">{meta.label}</h1>
       <p class="text-xl text-gray-500 dark:text-gray-400">{meta.intro}</p>
+      {pagination.total > pagination.size && (
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Showing {showingFrom}–{showingTo} of {pagination.total}.
+        </p>
+      )}
     </header>
 
     <PostList posts={posts} showDescription />
+
+    {(pagination.prevUrl || pagination.nextUrl) && (
+      <nav class="mt-10 flex items-center justify-between text-sm" aria-label="Pagination">
+        <div>
+          {pagination.prevUrl ? (
+            <a href={pagination.prevUrl} class="hover:underline" rel="prev">
+              <span aria-hidden="true">←</span> Newer
+            </a>
+          ) : (
+            <span class="text-gray-400 dark:text-gray-600">
+              <span aria-hidden="true">←</span> Newer
+            </span>
+          )}
+        </div>
+        <div class="text-gray-500 dark:text-gray-400">
+          Page {pagination.currentPage} of {pagination.lastPage}
+        </div>
+        <div>
+          {pagination.nextUrl ? (
+            <a href={pagination.nextUrl} class="hover:underline" rel="next">
+              Older <span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <span class="text-gray-400 dark:text-gray-600">
+              Older <span aria-hidden="true">→</span>
+            </span>
+          )}
+        </div>
+      </nav>
+    )}
   </div>
 </BaseLayout>

@@ -5,7 +5,7 @@ import CategoryCard from '../components/CategoryCard.astro';
 import { getCollection } from 'astro:content';
 import { CATEGORIES } from '../content.config.ts';
 
-const RECENT_LIMIT = 8;
+const RECENT_LIMIT = 5;
 
 const all = await getCollection('posts', ({ data }) => !data.draft);
 const sorted = all.sort(
@@ -40,13 +40,6 @@ const categoryCounts = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).
     </section>
 
     <section class="mt-8" transition:animate="fade">
-      <h2 class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 font-medium mb-2">
-        Recent
-      </h2>
-      <PostList posts={recent} showDescription={false} showCategory />
-    </section>
-
-    <section class="mt-16" transition:animate="fade">
       <h2 class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 font-medium mb-6">
         Browse by topic
       </h2>
@@ -54,6 +47,16 @@ const categoryCounts = (Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).
         {categoryCounts.map((c) => (
           <CategoryCard category={c.slug} postCount={c.count} />
         ))}
+      </div>
+    </section>
+
+    <section class="mt-16" transition:animate="fade">
+      <h2 class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 font-medium mb-2">
+        Recent
+      </h2>
+      <PostList posts={recent} showDescription={false} showCategory />
+      <div class="mt-6 text-right">
+        <a href="/posts/" class="text-sm hover:underline">All posts <span aria-hidden="true">→</span></a>
       </div>
     </section>
   </div>
