@@ -31,6 +31,27 @@ const pagesCollection = defineCollection({
   }),
 });
 
+const BUILD_STATUS = ['live', 'open-source', 'sold'] as const;
+
+const buildsCollection = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/builds' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      url: z.string().url().optional(),
+      status: z.enum(BUILD_STATUS),
+      logo: image().optional(),
+      order: z.number().default(0),
+    }),
+});
+
+export const BUILD_STATUS_LABELS: Record<(typeof BUILD_STATUS)[number], string> = {
+  live: 'Live',
+  'open-source': 'Open source',
+  sold: 'Sold',
+};
+
 export const CATEGORIES: Record<
   (typeof CATEGORY_VALUES)[number],
   { label: string; intro: string; icon: string }
@@ -55,4 +76,5 @@ export const CATEGORIES: Record<
 export const collections = {
   posts: postsCollection,
   pages: pagesCollection,
+  builds: buildsCollection,
 };
